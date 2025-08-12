@@ -13,6 +13,7 @@ const form = document.querySelector(".form");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  
   const query = e.target.elements["search-text"].value.trim();
 
   if (!query) {
@@ -28,9 +29,10 @@ form.addEventListener("submit", async (e) => {
   showLoader();
 
   try {
-    const data = await getImagesByQuery(query);
+    // Передаємо page і per_page, щоб співпадало з нашим getImagesByQuery
+    const data = await getImagesByQuery(query, 1, 40);
 
-    if (!data.hits.length) {
+    if (!data.hits || !data.hits.length) {
       iziToast.error({
         title: "Error",
         message:
