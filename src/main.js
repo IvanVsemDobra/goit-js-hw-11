@@ -11,44 +11,33 @@ import {
 
 const form = document.querySelector(".form");
 
+function showToast(type, title, message) {
+  iziToast[type]({
+    title,
+    message,
+    position: "topRight",
+  });
+}
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  
-  const query = e.target.elements["search-text"].value.trim();
 
-  if (!query) {
-    iziToast.warning({
-      title: "Warning",
-      message: "Please enter a search term!",
-      position: "topRight",
-    });
-    return;
-  }
+  const query = e.target.elements["search-text"].value.trim();
+  if (!query) return showToast("warning", "Warning", "Please enter a search term!");
 
   clearGallery();
   showLoader();
 
   try {
-    // Передаємо page і per_page, щоб співпадало з нашим getImagesByQuery
-    const data = await getImagesByQuery(query, 1, 40);
+    const { hits } = await getImagesByQuery(query, 1, 40);
 
-    if (!data.hits || !data.hits.length) {
-      iziToast.error({
-        title: "Error",
-        message:
-          "Sorry, there are no images matching your search query. Please try again!",
-        position: "topRight",
-      });
-      return;
+    if (!hits.length) {
+      return showToast("error", "Error", "Sorry, there are no images matching your search query. Please try again!");
     }
 
-    createGallery(data.hits);
+    createGallery(hits);
   } catch (error) {
-    iziToast.error({
-      title: "Error",
-      message: "Something went wrong. Please try again later.",
-      position: "topRight",
-    });
+    showToast("error", "Error", "Something went wrong. Please try again later.");
   } finally {
     hideLoader();
   }
